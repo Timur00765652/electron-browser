@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  @apply transition-all duration-100 ease-in;
+}
+
+body {
+  @apply bg-primary;
+}
+
+input {
+  @apply border border-tertiary bg-secondary rounded-md p-1 w-full focus:outline-none focus:ring-1 focus:ring-active;
+  @apply mb-0;
+}

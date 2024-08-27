@@ -69,37 +69,39 @@ function createBrowserView(id: number, url: string) {
   mainWindow.webContents.removeAllListeners('devtools-closed');
 
   mainWindow.on('resize', () => {
-    updateBrowserViewSize(view);
+    updateAllBrowserViewsSize();
   });
 
   mainWindow.webContents.on('devtools-opened', () => {
-    updateBrowserViewSize(view);
+    updateAllBrowserViewsSize();
   });
 
   mainWindow.webContents.on('devtools-closed', () => {
-    updateBrowserViewSize(view);
+    updateAllBrowserViewsSize();
   });
 
   mainWindow.on('enter-full-screen', () => {
-    updateBrowserViewSize(view);
+    updateAllBrowserViewsSize();
   });
 
   mainWindow.on('leave-full-screen', () => {
-    updateBrowserViewSize(view);
+    updateAllBrowserViewsSize();
   });
 
-  updateBrowserViewSize(view);
+  updateAllBrowserViewsSize();
 }
 
-function updateBrowserViewSize(view: BrowserView) {
+function updateAllBrowserViewsSize() {
   const bounds = mainWindow.getContentBounds();
   const heightOffset = 100;
 
-  view.setBounds({
-    x: 0,
-    y: heightOffset,
-    width: bounds.width,
-    height: bounds.height - heightOffset,
+  views.forEach(({ view }) => {
+    view.setBounds({
+      x: 0,
+      y: heightOffset,
+      width: bounds.width,
+      height: bounds.height - heightOffset,
+    });
   });
 }
 
@@ -124,7 +126,7 @@ function setupListeners() {
     const view = views.find((v) => v.id === id);
     if (view) {
       mainWindow.setBrowserView(view.view);
-      updateBrowserViewSize(view.view);
+      updateAllBrowserViewsSize();
     }
   });
 

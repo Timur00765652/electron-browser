@@ -13,21 +13,21 @@ interface EmitOptions {
 const emit = defineEmits<EmitOptions>();
 const modelValue = defineModel<string>();
 
-function onEnter() {
+const onEnter = () => {
   emit('enter');
-}
+};
 
-function onReload() {
+const onReload = () => {
   emit('reloadTab');
-}
+};
 
-function onPrevious() {
+const onPrevious = () => {
   emit('previousTab');
-}
+};
 
-function onNext() {
+const onNext = () => {
   emit('nextTab');
-}
+};
 </script>
 
 <template>

@@ -1,9 +1,9 @@
-import { app, protocol, BrowserWindow, BrowserView, ipcMain } from 'electron';
+import { app, protocol, BrowserWindow, ipcMain, WebContentsView } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import path from 'path';
 
 let mainWindow: BrowserWindow;
-let views: { id: number, view: BrowserView }[] = [];
+let views: { id: number, view: WebContentsView }[] = [];
 
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }]);
 
@@ -32,31 +32,31 @@ async function createWindow() {
 }
 
 function createBrowserView(id: number, url: string) {
-  const view = new BrowserView({
+  const view = new WebContentsView({
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
     },
   });
 
-  mainWindow.addBrowserView(view);
+  mainWindow.contentView.addChildView(view);
 
   view.webContents.loadURL(url);
   views.push({ id, view });
 
-  view.webContents.on('did-navigate', (event: Event, newUrl: string) => {
+  view.webContents.on('did-navigate', (event: Electron.Event, newUrl: string) => {
     mainWindow.webContents.send(`tab-navigated-${id}`, newUrl);
   });
 
-  view.webContents.on('did-navigate-in-page', (event: Event, newUrl: string) => {
+  view.webContents.on('did-navigate-in-page', (event: Electron.Event, newUrl: string) => {
     mainWindow.webContents.send(`tab-navigated-${id}`, { id, newUrl });
   });
 
-  view.webContents.on('page-title-updated', (event: Event, title: string) => {
+  view.webContents.on('page-title-updated', (event: Electron.Event, title: string) => {
     mainWindow.webContents.send(`tab-title-updated-${id}`, { id, title });
   });
 
-  view.webContents.on('page-favicon-updated', (event: Event, favicons: string[]) => {
+  view.webContents.on('page-favicon-updated', (event: Electron.Event, favicons: string[]) => {
     if (favicons.length > 0) {
       mainWindow.webContents.send(`tab-favicon-updated-${id}`, favicons[0]);
     }
@@ -125,7 +125,7 @@ function setupListeners() {
   ipcMain.on('activate-tab', (event, id: number) => {
     const view = views.find((v) => v.id === id);
     if (view) {
-      mainWindow.setBrowserView(view.view);
+      mainWindow.contentView.addChildView(view.view);
       updateAllBrowserViewsSize();
     }
   });
@@ -133,7 +133,7 @@ function setupListeners() {
   ipcMain.on('close-tab', (event, id: number) => {
     const view = views.find(v => v.id === id);
     if (view) {
-      mainWindow.removeBrowserView(view.view);
+      mainWindow.contentView.removeChildView(view.view);
       (view.view.webContents as any).destroy();
       views = views.filter(v => v.id !== id);
     }

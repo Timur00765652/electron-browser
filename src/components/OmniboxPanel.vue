@@ -2,10 +2,6 @@
 import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon.vue";
 import ArrowRightIcon from "@/components/icons/ArrowRightIcon.vue";
 import ReloadIcon from "@/components/icons/ReloadIcon.vue";
-
-interface Props {
-  modelValue: string;
-}
 interface EmitOptions {
   (event: 'update:modelValue', value: string): void;
   (event: 'enter'): void;
@@ -14,13 +10,8 @@ interface EmitOptions {
   (event: 'nextTab'): void;
 }
 
-const props = defineProps<Props>();
 const emit = defineEmits<EmitOptions>();
-
-function onInput(event: Event) {
-  const target = event.target as HTMLInputElement;
-  emit('update:modelValue', target.value);
-}
+const modelValue = defineModel<string>();
 
 function onEnter() {
   emit('enter');
@@ -49,11 +40,10 @@ function onNext() {
     <ReloadIcon parent-class="ml-2 size-5 cursor-pointer hover:text-active" @click="onReload"/>
 
     <input
+      v-model="modelValue"
       class="w-full"
-      :value="modelValue"
-      @input="onInput"
       placeholder="Enter URL"
       @keyup.enter="onEnter"
-    />
+    >
   </div>
 </template>
